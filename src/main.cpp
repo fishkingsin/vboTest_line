@@ -7,7 +7,10 @@
 int main( ){
 #ifndef TARGET_LINUX_ARM
     ofAppGlutWindow window;
-	ofSetupOpenGL(&window, 1024,768, OF_WINDOW);			// <-------- setup the GL context
+#if defined (TARGET_OSX)
+	window.setGlutDisplayString("rgba double samples>=4 depth");
+#endif
+	ofSetupOpenGL(&window, 1280,720, OF_WINDOW);			// <-------- setup the GL context
 #else
 	ofSetupOpenGL(1920,1080, OF_WINDOW);
 #endif
