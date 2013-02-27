@@ -1,0 +1,196 @@
+#include "testApp.h"
+
+//--------------------------------------------------------------
+void testApp::setup(){
+	lines = new RunningLine[GRID_WIDTH*GRID_HEIGHT];
+	ofSetLogLevel(OF_LOG_VERBOSE);
+	ofEnableSmoothing();
+	bPause	   = false;
+	restLength = 3.0;
+	space      = 50;
+	
+	center.x   = ((GRID_WIDTH-1)  * space) / 2;
+	center.y   = ((GRID_HEIGHT-1) * space) / 2;
+	
+	for (int i=0; i<GRID_WIDTH; i++) {
+		for (int j=0; j<GRID_HEIGHT; j++) {
+			
+			int x	  = (i * space) - center.x;
+			int y     = (j * space) - center.y;
+			int z     = 0;
+			int index = (j*GRID_WIDTH+i) * LENGTH;
+			
+			// now we are at each line
+			for (int k=0; k<LENGTH; k++) {
+				
+				pos[index + k].x = x;
+				pos[index + k].y = y;
+				pos[index + k].z = z;
+				color[index + k] = ofFloatColor::white;
+			}
+			
+			
+		}
+	}
+	
+	total = GRID_WIDTH*GRID_HEIGHT*LENGTH;
+	vbo.setVertexData(pos, total, GL_DYNAMIC_DRAW);
+	
+	ofSetVerticalSync(false);
+	ofEnableAlphaBlending();
+	
+	shader.setGeometryInputType(GL_LINES);
+	shader.setGeometryOutputType(GL_TRIANGLE_STRIP);
+	shader.setGeometryOutputCount(4);
+	shader.load("shaders/vert.glsl", "shaders/frag.glsl", "shaders/geom.glsl");
+	
+	printf("Maximum number of output vertices support is: %i\n", shader.getGeometryMaxOutputCount());
+	
+	glEnable(GL_DEPTH_TEST);
+}
+
+//--------------------------------------------------------------
+void testApp::update(){
+
+	if(!bPause) {
+		ofVec3f vec;
+		float   r = 0.3;
+		int lineCount = 0;
+		for (int i=0; i<GRID_WIDTH; i++) {
+			for (int j=0; j<GRID_HEIGHT; j++) {
+				
+				
+				int index = (j*GRID_WIDTH+i) * LENGTH;
+				lines[lineCount].update();
+				int x	  = (i * space) - center.x+lines[lineCount].output.x - (lines[lineCount].rect.width*0.5);
+				int y     = (j * space) - center.y+lines[lineCount].output.y - (lines[lineCount].rect.height*0.5);
+				int z     = lines[lineCount].output.z+lines[lineCount].z;
+
+				
+				for (int k=LENGTH-1; k>=1; k--) {
+					vec		 =  pos[index + k] - pos[index + (k-2)];
+					float d  = vec.length();
+					
+					pos[index + k] = pos[index + k-1];
+
+					if(lines[lineCount].direction==0)
+					{
+						pos[index + k].z = lines[lineCount].z;
+					}
+					else
+					{
+						pos[index + k].z += lines[lineCount].v.z;
+					}
+				}
+				
+				pos[index].set(x, y, z);
+				pos[index+1].set(x, y, z);
+				if(abs(z-pos[index + (LENGTH-1)].z)>1000)
+				{
+					for (int k=0; k<LENGTH; k++) pos[index+k].z=lines[lineCount].z;
+					
+				}
+
+				
+				
+				lineCount++;
+				
+			}
+		}
+	}
+	
+	
+//	zoom += (zoomTarget-zoom) * 0.04;
+	
+}
+
+//--------------------------------------------------------------
+void testApp::draw() {
+	if(doShader) {
+	shader.begin();
+	
+	// set thickness of ribbons
+	shader.setUniform1f("thickness", 2);
+	
+	// make light direction slowly rotate
+	shader.setUniform3f("lightDir", sin(ofGetElapsedTimef()/10), cos(ofGetElapsedTimef()/10),1);
+	}
+	ofPushMatrix();
+	ofTranslate(ofGetWidth()/2, ofGetHeight()/2, zoom);
+	
+
+	
+	
+	// the lines
+	ofEnableAlphaBlending();
+	ofSetColor(255, 255, 255);
+//	glLineWidth( 5.0f );
+	vbo.bind();
+	vbo.updateVertexData(pos, total);
+	
+	for (int i=0; i<GRID_WIDTH; i++) {
+		for (int j=0; j<GRID_HEIGHT; j++) {
+			int index = (j*GRID_WIDTH+i) * LENGTH;
+			vbo.draw(GL_LINE_STRIP, index, LENGTH);
+		}
+	}
+	
+	vbo.unbind();
+	
+	ofPopMatrix();
+	if(doShader) {
+	shader.end();
+	}
+	
+	ofSetColor(90, 90, 90);
+	ofDrawBitmapString(ofToString(ofGetFrameRate(), 1), 5, 20);
+
+	
+}
+
+//--------------------------------------------------------------
+void testApp::keyPressed(int key){
+	if( key == 's' ){
+		doShader = !doShader;
+	}
+}
+
+//--------------------------------------------------------------
+void testApp::keyReleased(int key){
+
+}
+
+//--------------------------------------------------------------
+void testApp::mouseMoved(int x, int y ){
+	
+}
+
+//--------------------------------------------------------------
+void testApp::mouseDragged(int x, int y, int button){
+//zoomTarget = ofMap(x, 0.0, ofGetWidth(), 100, 500);
+}
+
+//--------------------------------------------------------------
+void testApp::mousePressed(int x, int y, int button){
+	bPause = !bPause;
+}
+
+//--------------------------------------------------------------
+void testApp::mouseReleased(int x, int y, int button){
+
+}
+
+//--------------------------------------------------------------
+void testApp::windowResized(int w, int h){
+
+}
+
+//--------------------------------------------------------------
+void testApp::gotMessage(ofMessage msg){
+
+}
+
+//--------------------------------------------------------------
+void testApp::dragEvent(ofDragInfo dragInfo){ 
+
+}
