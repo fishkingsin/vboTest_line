@@ -4,7 +4,7 @@
 #define GRID_WIDTH  16
 #define GRID_HEIGHT 16
 #define LENGTH		2 * 32
-#define TARGET_LINUX_ARM
+#ifndef TARGET_LINUX_ARM
 #include "ofxPostProcessing.h"
 #endif
 class RunningLine : public ofVec3f{
