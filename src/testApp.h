@@ -1,9 +1,12 @@
 #pragma once
 
 #include "ofMain.h"
-#define GRID_WIDTH  8
-#define GRID_HEIGHT 8
-#define LENGTH		2 * 16
+#define GRID_WIDTH  16
+#define GRID_HEIGHT 4
+#define LENGTH		2 * 32
+#ifndef TARGET_LINUX_ARM
+#include "ofxPostProcessing.h"
+#endif
 class RunningLine : public ofVec3f{
 public:
 	RunningLine()
@@ -88,7 +91,7 @@ public:
 		
 		if(z+v.z>1000)
 		{
-			z = -5000;
+			z = -2000;
 //			output.z = -5000;
 		}
 //		ofLogVerbose("RunningLine") << *this;
@@ -128,6 +131,8 @@ public:
 	bool bPause;
 	int zoom;
 	int zoomTarget;
-	ofShader shader;
+//	ofShader shader;
 	bool doShader;
+	
+	ofxPostProcessing post;
 };
