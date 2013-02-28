@@ -45,11 +45,15 @@ void testApp::setup(){
 	post.createPass<FxaaPass>()->setEnabled(true);
     post.createPass<BloomPass>()->setEnabled(true);
     post.createPass<DofPass>()->setEnabled(true);
-	//	shader.setGeometryInputType(GL_LINES);
-	//	shader.setGeometryOutputType(GL_TRIANGLE_STRIP);
-	//	shader.setGeometryOutputCount(4);
-	//	shader.load("shaders/vert.glsl", "shaders/frag.glsl", "shaders/geom.glsl");
-	
+#else
+	shader.setGeometryInputType(GL_LINES);
+	shader.setGeometryOutputType(GL_TRIANGLE_STRIP);
+	shader.setGeometryOutputCount(LENGTH);
+#ifdef TARGET_OPENGLES
+	shader.load("shaders/vertGLES.glsl", "shaders/fragGLES.glsl", "shaders/geomGLES.glsl");
+#else
+	shader.load("shaders/vert.glsl", "shaders/frag.glsl", "shaders/geom.glsl");
+#endif
 	//	printf("Maximum number of output vertices support is: %i\n", shader.getGeometryMaxOutputCount());
 #endif
 	glEnable(GL_DEPTH_TEST);
@@ -79,14 +83,14 @@ void testApp::update(){
 					
 					pos[index + k] = pos[index + k-1];
 					
-					if(lines[lineCount].direction==0)
-					{
-						pos[index + k].z = lines[lineCount].z;
-					}
-					else
-					{
-						pos[index + k].z += lines[lineCount].v.z;
-					}
+//					if(lines[lineCount].direction==0)
+//					{
+//						pos[index + k].z = lines[lineCount].z;
+//					}
+//					else
+//					{
+//						pos[index + k].z += lines[lineCount].v.z;
+//					}
 				}
 				
 				pos[index].set(x, y, z);
@@ -98,6 +102,7 @@ void testApp::update(){
 				}
 				for (int k=0; k<LENGTH; k++)
 				{
+					pos[index + k].z += lines[lineCount].v.z;
 					color[index + k] = ofFloatColor(1,1,1,ofMap(z, -5000, 1000, 0, 1));
 				}
 				
@@ -115,7 +120,7 @@ void testApp::update(){
 
 //--------------------------------------------------------------
 void testApp::draw() {
-	
+		ofBackgroundGradient( ofColor::black , ofColor(10,10,10));
 	if(doShader) {
 #ifndef TARGET_LINUX_ARM
 		// copy enable part of gl state
@@ -125,14 +130,15 @@ void testApp::draw() {
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		post.begin();
+#else
+	shader.begin();
+
+	// set thickness of ribbons
+	shader.setUniform1f("thickness", 3);
+
+	// make light direction slowly rotate
+		shader.setUniform3f("lightDir", 0,0,1);//sin(ofGetElapsedTimef()/10), cos(ofGetElapsedTimef()/10),1);
 #endif
-		//	shader.begin();
-		//
-		//	// set thickness of ribbons
-		//	shader.setUniform1f("thickness", 2);
-		//
-		//	// make light direction slowly rotate
-		//	shader.setUniform3f("lightDir", sin(ofGetElapsedTimef()/10), cos(ofGetElapsedTimef()/10),1);
 	}
 	ofBackgroundGradient( ofColor::black , ofColor(10,10,10));
 	ofPushMatrix();
@@ -161,12 +167,16 @@ void testApp::draw() {
 	
 	ofPopMatrix();
 	if(doShader) {
+
 #ifndef TARGET_LINUX_ARM
 		post.end();
-		//	shader.end();
+
 		// set gl state back to original
 		glPopAttrib();
+#else
+				shader.end();
 #endif
+		
 	}
 	
 	ofSetColor(90, 90, 90);
