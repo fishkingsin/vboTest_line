@@ -20,7 +20,7 @@ public:
 		if(dirX)
 		{
 				int dir = ofRandom(0, 1);
-			v.set(ofRandom(2.5,5),0,ofRandom(0.5,1.5));
+			v.set(((dir>0.5)?-1:1)*ofRandom(2.5,5),0,ofRandom(0.5,1.5));
 		}
 		else
 		{
