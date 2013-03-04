@@ -1,8 +1,8 @@
 #pragma once
 
 #include "ofMain.h"
-#define GRID_WIDTH  16
-#define GRID_HEIGHT 16
+#define GRID_WIDTH  8
+#define GRID_HEIGHT 8
 #define LENGTH		2 * 32
 #define TARGET_LINUX_ARM
 #ifndef TARGET_LINUX_ARM

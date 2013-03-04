@@ -8,7 +8,7 @@ void testApp::setup(){
 	ofEnableSmoothing();
 	bPause	   = false;
 	restLength = 3.0;
-	space      = 50;
+	space      = 200;
 	
 	center.x   = ((GRID_WIDTH-1)  * space) / 2;
 	center.y   = ((GRID_HEIGHT-1) * space) / 2;
