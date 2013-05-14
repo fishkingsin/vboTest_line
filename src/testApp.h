@@ -3,8 +3,8 @@
 #include "ofMain.h"
 #define GRID_WIDTH  8
 #define GRID_HEIGHT 8
-#define LENGTH		2 * 32
-#define TARGET_LINUX_ARM
+#define LENGTH		4*32
+//#define TARGET_LINUX_ARM
 #ifndef TARGET_LINUX_ARM
 #include "ofxPostProcessing.h"
 #endif
@@ -29,7 +29,7 @@ public:
 			
 		}
 		
-		rect.set( 0,0,ofRandom(70,150),ofRandom(70,150));
+		rect.set( 0,0,ofRandom(70,500),ofRandom(70,500));
 	}
 	void update()
 	{

@@ -6,6 +6,7 @@ void testApp::setup(){
 	lines = new RunningLine[GRID_WIDTH*GRID_HEIGHT];
 	ofSetLogLevel(OF_LOG_VERBOSE);
 	ofEnableSmoothing();
+    ofSetVerticalSync(true);
 	bPause	   = false;
 	restLength = 3.0;
 	space      = 200;
@@ -134,7 +135,7 @@ void testApp::draw() {
 	shader.begin();
 
 	// set thickness of ribbons
-	shader.setUniform1f("thickness", 3);
+	shader.setUniform1f("thickness", ofGetMouseX());
 
 	// make light direction slowly rotate
 		shader.setUniform3f("lightDir", 0,0,1);//sin(ofGetElapsedTimef()/10), cos(ofGetElapsedTimef()/10),1);
@@ -190,6 +191,13 @@ void testApp::keyPressed(int key){
 	if( key == 's' ){
 		doShader = !doShader;
 	}
+    else
+    {
+        #ifndef TARGET_LINUX_ARM
+        unsigned idx = key - '0';
+        if (idx < post.size()) post[idx]->setEnabled(!post[idx]->getEnabled());
+#endif
+    }
 }
 
 //--------------------------------------------------------------
